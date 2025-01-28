@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">SequeChat</string>
+    <string name="bem_vindo_de_volta">Bem-vindo de volta!</string>
+    <string name="efetua_o_login_para_continuar">Efetua o Login para continuar!</string>
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="entrar">Entrar</string>
+    <string name="criar_nova_conta">Criar Nova Conta</string>
 </resources>
