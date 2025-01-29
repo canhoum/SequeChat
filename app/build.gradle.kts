@@ -10,7 +10,7 @@ android {
     defaultConfig {
         applicationId = "pt.ipt.dam.sequechat"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -36,6 +36,7 @@ android {
     buildFeatures {
         viewBinding = true
     }
+
 }
 
 dependencies {
@@ -55,8 +56,6 @@ dependencies {
 
     //ImageView arredondada
     implementation(libs.roundedimageview)
-
-
 
 
 }
