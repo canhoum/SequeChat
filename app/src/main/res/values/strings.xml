@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">SequeChat</string>
+    <string name="bem_vindo_de_volta">Bem-vindo de volta!</string>
+    <string name="efetua_o_login_para_continuar">Efetua o Login para continuar!</string>
+    <string name="email">email</string>
+    <string name="password">password</string>
+    <string name="entrar">Entrar</string>
+    <string name="criar_nova_conta">Criar Nova Conta</string>
+    <string name="adicionar_imagem">adicionar imagem</string>
+    <string name="nome">Nome</string>
+    <string name="confirmar_password">Confirmar Password</string>
+    <string name="registar">Registar</string>
+    <string name="ja_tenho_uma_conta">Já tenho uma conta</string>
+    <string name="guardar_dados">Guardar dados</string>
 </resources>

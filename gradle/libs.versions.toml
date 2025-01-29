@@ -19,6 +19,9 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+sdp-android = "com.intuit.sdp:sdp-android:1.1.0"
+ssp-android = "com.intuit.ssp:ssp-android:1.1.0"
+roundedimageview = "com.makeramen:roundedimageview:2.3.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

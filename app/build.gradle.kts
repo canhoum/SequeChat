@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "pt.ipt.dam.sequechat"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "pt.ipt.dam.sequechat"
@@ -33,6 +33,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
+
 }
 
 dependencies {
@@ -45,4 +49,13 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Muda a resolução para diferentes tamanhos de ecrãs
+    implementation(libs.sdp.android)
+    implementation(libs.ssp.android)
+
+    //ImageView arredondada
+    implementation(libs.roundedimageview)
+
+
 }
