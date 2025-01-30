@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import pt.ipt.dam.sequechat.MainActivity
 import pt.ipt.dam.sequechat.databinding.ActivitySignUpBinding
 
 class SignUpActivity : AppCompatActivity() {
@@ -49,10 +50,10 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun isValidSignUpDetails(): Boolean {
         return when {
-            encodedImage == null -> {
+            /*encodedImage == null -> {
                 showToast("Select profile image")
                 false
-            }
+            }*/
             binding.inputName.text.toString().trim().isEmpty() -> {
                 showToast("Enter name")
                 false
@@ -77,7 +78,16 @@ class SignUpActivity : AppCompatActivity() {
                 showToast("Password & confirm password must be the same")
                 false
             }
-            else -> true
+            else -> {
+                // Cria um Intent para abrir a MainActivity e enviar os dados
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    putExtra("name", binding.inputName.text.toString().trim())
+                    putExtra("email", binding.inputEmail.text.toString().trim())
+                    putExtra("password", binding.inputPassword.text.toString().trim())
+                }
+                startActivity(intent)
+                true
+            }
         }
     }
 

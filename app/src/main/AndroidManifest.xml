@@ -22,7 +22,7 @@
 
         <!-- Login -->
         <activity
-            android:name=".activities.SignInActivity"
+            android:name=".activities.PreSignIn"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>

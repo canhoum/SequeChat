@@ -50,6 +50,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+
     // Muda a resolução para diferentes tamanhos de ecrãs
     implementation(libs.sdp.android)
     implementation(libs.ssp.android)
