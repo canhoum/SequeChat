@@ -16,4 +16,5 @@
     <string name="select_user">Select User</string>
     <string name="btnteste">Button</string>
     <string name="log_out">Log Out</string>
+    <string name="envia_uma_mensagem">Envia uma mensagem</string>
 </resources>
