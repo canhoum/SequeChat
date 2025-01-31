@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import pt.ipt.dam.sequechat.MainActivity
+import pt.ipt.dam.sequechat.models.MainActivity
 import pt.ipt.dam.sequechat.databinding.ActivitySignUpBinding
 
 class SignUpActivity : AppCompatActivity() {

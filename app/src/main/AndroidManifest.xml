@@ -33,7 +33,7 @@
 
         <!-- Acesso após login -->
         <activity
-            android:name=".MainActivity"
+            android:name=".models.MainActivity"
             android:exported="false"/>
 
     </application>
