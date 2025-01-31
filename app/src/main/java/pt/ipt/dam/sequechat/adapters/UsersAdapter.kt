@@ -1,14 +1,14 @@
 package pt.ipt.dam.sequechat.adapters
 
+import android.content.ClipData.Item
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import pt.ipt.dam.sequechat.databinding.ItemCountainerUserBinding
-import android.view.LayoutInflater
 import pt.ipt.dam.sequechat.models.User
-
 
 class UsersAdapter(private val users: List<User>) : RecyclerView.Adapter<UsersAdapter.UserViewHolder>() {
 
@@ -27,14 +27,16 @@ class UsersAdapter(private val users: List<User>) : RecyclerView.Adapter<UsersAd
 
     override fun getItemCount(): Int = users.size
 
-
     inner class UserViewHolder(private val binding: ItemCountainerUserBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun setUserData(user: User) {
             binding.textName.text = user.name
             binding.textEmail.text = user.email
-            binding.imageProfile.setImageBitmap(getUserImage(user.image))
+
+            if (user.image.isNotEmpty()) {
+                binding.imageProfile.setImageBitmap(getUserImage(user.image))
+            }
         }
 
         private fun getUserImage(encodedImage: String): Bitmap {

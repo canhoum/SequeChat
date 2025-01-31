@@ -18,6 +18,7 @@
         android:layout_marginTop="12.00dp"
         android:scaleType="centerCrop"
         android:background="#36485d"
+        android:drawableStart="@drawable/ic_profile"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:riv_corner_radius="8.00dp"/>
@@ -53,9 +54,11 @@
         android:maxLines="1"
         android:textSize="14.00sp"
         android:textStyle="bold"
+        android:drawableStart="@drawable/ic_profile"
         app:layout_constraintBottom_toBottomOf="@+id/imageProfile"
         app:layout_constraintStart_toEndOf="@+id/imageProfile"
-        app:layout_constraintTop_toTopOf="@+id/imageProfile"    />
+        app:layout_constraintTop_toTopOf="@+id/imageProfile"
+        />
 
     <FrameLayout
         android:layout_width="match_parent"
