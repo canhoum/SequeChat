@@ -22,7 +22,7 @@ class PreSignIn : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inicializar o ViewBinding
+        // Iniciar o ViewBinding
         binding = ActivitySignInBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setListeners()

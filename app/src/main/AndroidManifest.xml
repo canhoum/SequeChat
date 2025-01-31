@@ -36,6 +36,11 @@
             android:name=".models.MainActivity"
             android:exported="false"/>
 
+        <activity
+            android:name=".activities.UserActivity"/>
+
+        <activity android:name=".models.User"/>
+
     </application>
 
 </manifest>

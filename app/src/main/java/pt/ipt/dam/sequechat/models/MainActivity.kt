@@ -14,8 +14,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import pt.ipt.dam.sequechat.R
 import pt.ipt.dam.sequechat.activities.PreSignIn
+import pt.ipt.dam.sequechat.activities.UserActivity
 import java.io.OutputStreamWriter
 
 class MainActivity : AppCompatActivity() {
@@ -45,7 +47,12 @@ class MainActivity : AppCompatActivity() {
             }
             val button: Button = findViewById(R.id.btnteste)
             val button_logout: Button = findViewById(R.id.buttonLogOut)
-            button.setOnClickListener {
+            val fabNewChat: FloatingActionButton = findViewById(R.id.fabNewChat)
+            fabNewChat.setOnClickListener {
+                startActivity(Intent(this, UserActivity::class.java))
+            }
+
+        button.setOnClickListener {
                 fetchSheetyData()
             }
             button_logout.setOnClickListener{

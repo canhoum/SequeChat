@@ -34,8 +34,7 @@ class UsersAdapter(private val users: List<User>) : RecyclerView.Adapter<UsersAd
             binding.textName.text = user.name
             binding.textEmail.text = user.email
 
-            if (user.image.isNotEmpty()) {
-                binding.imageProfile.setImageBitmap(getUserImage(user.image))
+
             }
         }
 
@@ -44,4 +43,3 @@ class UsersAdapter(private val users: List<User>) : RecyclerView.Adapter<UsersAd
             return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         }
     }
-}

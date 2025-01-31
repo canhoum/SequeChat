@@ -45,6 +45,8 @@ class UserActivity : AppCompatActivity() {
     }
 
     private fun fetchSheetyData() {
+        showLoading(true)  // Mostrar o ProgressBar antes de iniciar o carregamento
+
         val url = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1"
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -56,6 +58,8 @@ class UserActivity : AppCompatActivity() {
                 val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     val response = connection.inputStream.bufferedReader().use { it.readText() }
+                    Log.d("API_RESPONSE", "Resposta da API: $response")
+
                     val jsonObject = JSONObject(response)
                     val folha1 = jsonObject.getJSONArray("folha1")
 
@@ -63,10 +67,9 @@ class UserActivity : AppCompatActivity() {
                         val userJson = folha1.getJSONObject(i)
                         val user = User(
                             name = userJson.getString("nome"),
-                            email = userJson.getString("email"),
-                            image = "", // Atualiza se necessário
-                            token = ""
+                            email = userJson.getString("email")
                         )
+                        Log.d("UserActivity", "Utilizador recebido: ${user.name}, ${user.email}")
                         usersList.add(user)
                     }
 
@@ -74,12 +77,15 @@ class UserActivity : AppCompatActivity() {
                         if (usersList.isNotEmpty()) {
                             usersAdapter = UsersAdapter(usersList)
                             binding.usersRecyclerView.adapter = usersAdapter
+                            binding.usersRecyclerView.visibility = View.VISIBLE
                         } else {
                             showErrorMessage()
                         }
+                        showLoading(false)  // Esconder o ProgressBar após carregar os dados
                     }
                 } else {
                     Log.d("UserActivity", "Erro na requisição: Código $responseCode")
+                    showLoading(false)  // Esconder o ProgressBar mesmo em caso de erro
                 }
 
                 connection.disconnect()
@@ -87,6 +93,7 @@ class UserActivity : AppCompatActivity() {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
                     showToast("Erro ao obter dados.")
+                    showLoading(false)  // Esconder o ProgressBar após erro
                 }
             }
         }
@@ -94,5 +101,9 @@ class UserActivity : AppCompatActivity() {
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 }
