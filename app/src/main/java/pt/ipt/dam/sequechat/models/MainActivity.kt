@@ -1,4 +1,4 @@
-package pt.ipt.dam.sequechat
+package pt.ipt.dam.sequechat.models
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -14,8 +14,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import pt.ipt.dam.sequechat.R
 import pt.ipt.dam.sequechat.activities.PreSignIn
-import pt.ipt.dam.sequechat.activities.SignInActivity
 import java.io.OutputStreamWriter
 
 class MainActivity : AppCompatActivity() {

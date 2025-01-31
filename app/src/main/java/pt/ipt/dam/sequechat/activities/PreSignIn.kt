@@ -3,7 +3,6 @@ package pt.ipt.dam.sequechat.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.CoroutineScope
@@ -11,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import pt.ipt.dam.sequechat.MainActivity
+import pt.ipt.dam.sequechat.models.MainActivity
 import pt.ipt.dam.sequechat.databinding.ActivitySignInBinding
 import java.net.HttpURLConnection
 import java.net.URL
