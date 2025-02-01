@@ -45,16 +45,14 @@ class MainActivity : AppCompatActivity() {
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
                 insets
             }
-            val button: Button = findViewById(R.id.btnteste)
+
             val button_logout: Button = findViewById(R.id.buttonLogOut)
             val fabNewChat: FloatingActionButton = findViewById(R.id.fabNewChat)
             fabNewChat.setOnClickListener {
                 startActivity(Intent(this, UserActivity::class.java))
             }
 
-        button.setOnClickListener {
-                fetchSheetyData()
-            }
+        
             button_logout.setOnClickListener{
                 logout(this)
             }

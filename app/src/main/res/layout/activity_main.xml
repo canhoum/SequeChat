@@ -35,14 +35,6 @@
         android:layout_marginTop="16dp"
         />
 
-    <Button
-        android:id="@+id/btnteste"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:layout_width="0dp"
@@ -77,8 +69,10 @@
         android:layout_marginBottom="@dimen/_24sdp"
         android:src="@drawable/ic_add"
         android:backgroundTint="@color/primary"
+        android:tint="@color/white"
+        android:contentDescription="Adicionar novo chat"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:tint="@color/white"  />
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
