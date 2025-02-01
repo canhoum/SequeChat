@@ -32,10 +32,6 @@ class UserActivity : AppCompatActivity(), UserListener {
         preferenceManager = PreferenceManager(this)
         setupUI()
         fetchSheetyData()
-
-        // Exemplo de adição automática
-        val newUser = User(name = "Carlos", email = "carlos@gmail.com", user = "carlos123")
-        addUserToSheet(newUser)
     }
 
     private fun setupUI() {
@@ -75,7 +71,7 @@ class UserActivity : AppCompatActivity(), UserListener {
                         val user = User(
                             name = userJson.getString("nome"),
                             email = userJson.getString("email"),
-                            user = userJson.optString("user", "N/A")  // Verifica se o campo 'user' está presente
+                            username = userJson.optString("username", "N/A")  // Verifica se o campo 'user' está presente
                         )
                         usersList.add(user)
                     }
@@ -101,54 +97,6 @@ class UserActivity : AppCompatActivity(), UserListener {
                 withContext(Dispatchers.Main) {
                     showToast("Erro ao obter dados.")
                     showLoading(false)
-                }
-            }
-        }
-    }
-
-    private fun addUserToSheet(user: User) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val jsonBody = """
-                    {
-                        "folha1": {
-                            "Nome": "${user.name}",
-                            "Email": "${user.email}",
-                            "Password": "123",
-                            "User": ""
-                        }
-                    }
-                """.trimIndent()
-
-                Log.d("POST_JSON_BODY", jsonBody)
-
-                val url = URL("https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1")
-                val connection = (url.openConnection() as HttpURLConnection).apply {
-                    requestMethod = "POST"
-                    setRequestProperty("Content-Type", "application/json")
-                    doOutput = true
-                    outputStream.write(jsonBody.toByteArray())
-                }
-
-                val responseCode = connection.responseCode
-                val responseMessage = connection.inputStream.bufferedReader().use { it.readText() }
-
-                Log.e("POST_RESPONSE", "Código: $responseCode, Resposta: $responseMessage")
-
-                if (responseCode == HttpURLConnection.HTTP_CREATED) {
-                    val jsonResponse = JSONObject(responseMessage)
-                    val id = jsonResponse.getJSONObject("folha1").getInt("id")
-
-                    // Atualiza o campo User com o ID obtido
-                    updateUserField(id, user.user)
-                } else {
-                    Log.e("SheetyError", "Erro ao adicionar utilizador: Código $responseCode, Resposta: $responseMessage")
-                }
-                connection.disconnect()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@UserActivity, "Erro ao adicionar utilizador.", Toast.LENGTH_SHORT).show()
                 }
             }
         }

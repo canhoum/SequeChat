@@ -1,11 +1,8 @@
 package pt.ipt.dam.sequechat.models
+
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlinx.coroutines.*
-import org.json.JSONObject
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -14,68 +11,171 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import pt.ipt.dam.sequechat.R
+import pt.ipt.dam.sequechat.activities.ChatActivity
 import pt.ipt.dam.sequechat.activities.PreSignIn
 import pt.ipt.dam.sequechat.activities.UserActivity
+import pt.ipt.dam.sequechat.adapters.UserListAdpater
+import pt.ipt.dam.sequechat.models.User
 import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var usersAdapter: UserListAdpater
+    private val usersList = mutableListOf<User>()
+
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_main)
 
-            super.onCreate(savedInstanceState)
-            enableEdgeToEdge()
-            setContentView(R.layout.activity_main)
-            // Receber os dados do Intent
-            val name = intent.getStringExtra("name")
-            val email = intent.getStringExtra("email")
-            val password = intent.getStringExtra("password")
+        // Inicializar UI
+        setupUI()
 
+        // Configurar o adapter e RecyclerView
+        usersAdapter = UserListAdpater(usersList) { selectedUser ->
+            onUserSelected(selectedUser)
+        }
 
-            // Verificar se os dados não são nulos e chamar a função
-            if (name != null && email != null && password != null) {
-                postToSheety(name, email, password)
-            } else {
-                println("Erro ao receber os dados.")
-            }
+        findViewById<RecyclerView>(R.id.recyclerViewUsers).apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = usersAdapter
+        }
 
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-                insets
-            }
-
-            val button_logout: Button = findViewById(R.id.buttonLogOut)
-            val fabNewChat: FloatingActionButton = findViewById(R.id.fabNewChat)
-            fabNewChat.setOnClickListener {
-                startActivity(Intent(this, UserActivity::class.java))
-            }
-
-        
-            button_logout.setOnClickListener{
-                logout(this)
-            }
+        // Carregar os dados da API
+        fetchUsersFromSheety()
+        val sharedPreferences = this.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        val  username = sharedPreferences.getString("UserId", null)
+        if (username != null) {
+            fetchSheetyData(username)
+        }
     }
 
-    fun logout(context: Context) {
-        // Usar SharedPreferences para limpar o estado de login
-        val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-        sharedPreferences.edit().putBoolean("IsLoggedIn", false).apply()
-        sharedPreferences.edit().remove("UserId").apply()
+    private fun setupUI() {
+        val buttonLogout: Button = findViewById(R.id.buttonLogOut)
+        val fabNewChat: FloatingActionButton = findViewById(R.id.fabNewChat)
 
-        // Redirecionar para a tela de login
-        showToast("Sessão terminada!")
-        val loginIntent = Intent(context, PreSignIn::class.java)
-        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(loginIntent)
+        // Configurar RecyclerView e passar a função ao clicar num utilizador
+        usersAdapter = UserListAdpater(usersList) { selectedUser ->
+            onUserSelected(selectedUser)
+        }
+        findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerViewUsers).apply {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = usersAdapter
+        }
+
+        // Listener para botão de novo chat
+        fabNewChat.setOnClickListener {
+            startActivity(Intent(this, UserActivity::class.java))
+        }
+
+        // Listener para logout
+        buttonLogout.setOnClickListener {
+            logout(this)
+        }
+
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+    }
+
+    private fun onUserSelected(user: User) {
+        val intent = Intent(this, ChatActivity::class.java)
+        intent.putExtra("user", user)
+        startActivity(intent)
+    }
+
+    private fun fetchSheetyData(currentUserId: String) {
+        val messagesUrl = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha2"
+        val usersUrl = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1"
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // 1. Obter as mensagens da folha2
+                val messagesConnection = URL(messagesUrl).openConnection() as HttpURLConnection
+                messagesConnection.requestMethod = "GET"
+                messagesConnection.connect()
+
+                val messagesResponseCode = messagesConnection.responseCode
+                val receiverUsernames = mutableSetOf<String>()
+
+                if (messagesResponseCode == HttpURLConnection.HTTP_OK) {
+                    val response = messagesConnection.inputStream.bufferedReader().use { it.readText() }
+                    val messagesArray = JSONObject(response).getJSONArray("folha2")
+
+                    // Filtrar mensagens em que o senderId é o currentUserId
+                    for (i in 0 until messagesArray.length()) {
+                        val messageJson = messagesArray.getJSONObject(i)
+                        val senderId = messageJson.getString("senderId")
+                        val receiverId = messageJson.getString("receiverId")
+
+                        if (senderId == currentUserId) {
+                            receiverUsernames.add(receiverId)  // Adiciona receiverId ao conjunto
+                        }
+                    }
+                }
+                messagesConnection.disconnect()
+
+                // 2. Obter utilizadores da folha1
+                val usersConnection = URL(usersUrl).openConnection() as HttpURLConnection
+                usersConnection.requestMethod = "GET"
+                usersConnection.connect()
+
+                val usersResponseCode = usersConnection.responseCode
+                if (usersResponseCode == HttpURLConnection.HTTP_OK) {
+                    val response = usersConnection.inputStream.bufferedReader().use { it.readText() }
+                    val usersArray = JSONObject(response).getJSONArray("folha1")
+
+                    // Limpar a lista existente e adicionar novos utilizadores sem repetir
+                    usersList.clear()
+                    for (i in 0 until usersArray.length()) {
+                        val userJson = usersArray.getJSONObject(i)
+                        val username = userJson.getString("username")
+
+                        // Adiciona apenas utilizadores cujos usernames correspondem ao receiverId filtrado
+                        if (receiverUsernames.contains(username)) {
+                            val user = User(
+                                name = userJson.getString("nome"),
+                                email = userJson.getString("email"),
+                                username = username
+                            )
+                            usersList.add(user)
+                        }
+                    }
+                    withContext(Dispatchers.Main) {
+                        usersAdapter.notifyDataSetChanged()
+                    }
+                } else {
+                    Log.d("MainActivity", "Erro na requisição da folha1: Código $usersResponseCode")
+                }
+                usersConnection.disconnect()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Erro ao buscar utilizadores.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
 
-    fun fetchSheetyData() {
+
+    private fun fetchUsersFromSheety() {
         val url = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1"
 
-        // Usamos coroutines para evitar bloqueios na UI
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val connection = URL(url).openConnection() as HttpURLConnection
@@ -85,73 +185,81 @@ class MainActivity : AppCompatActivity() {
                 val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     val response = connection.inputStream.bufferedReader().use { it.readText() }
-
-                    // Converte a resposta para JSON
                     val jsonObject = JSONObject(response)
-                    val folha1 = jsonObject.getJSONArray("folha1")
+                    val usersArray = jsonObject.getJSONArray("folha1")
 
-                    // Log dos dados obtidos
+                    // Limpar a lista existente e adicionar novos utilizadores
+                    usersList.clear()
+                    for (i in 0 until usersArray.length()) {
+                        val userJson = usersArray.getJSONObject(i)
+                        val user = User(
+                            name = userJson.getString("nome"),
+                            email = userJson.getString("email"),
+                            username = userJson.getString("username")
+                        )
+                        usersList.add(user)
+                    }
+
                     withContext(Dispatchers.Main) {
-                        Log.d("batata frita","dados da api: $folha1")
-                        println("Dados da API: $folha1")
+                        usersAdapter.notifyDataSetChanged()
                     }
                 } else {
-                    Log.d("batata frita","Erro na requisição: Código $responseCode")
-                    println("Erro na requisição: Código $responseCode")
+                    Log.d("MainActivity", "Erro na requisição: Código $responseCode")
                 }
 
                 connection.disconnect()
             } catch (e: Exception) {
                 e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Erro ao buscar utilizadores.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+    private fun logout(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        sharedPreferences.edit().putBoolean("IsLoggedIn", false).apply()
+        sharedPreferences.edit().remove("UserId").apply()
+
+        showToast("Sessão terminada!")
+        val loginIntent = Intent(context, PreSignIn::class.java)
+        loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(loginIntent)
     }
-    fun postToSheety(name: String, email: String, password: String) {
+
+    private fun postToSheety(name: String, email: String, password: String, username: String) {
         val url = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1"
 
-        // Corpo da requisição (JSON)
-        val jsonBody = JSONObject()
-        val folha1 = JSONObject()
+        val jsonBody = JSONObject().apply {
+            put("folha1", JSONObject().apply {
+                put("nome", name)
+                put("email", email)
+                put("password", password)
+                put("username", username)
+            })
+        }
 
-        // Adiciona os dados ao objeto JSON (substitui pelos teus campos)
-        folha1.put("nome", name)
-        folha1.put("email", email)
-        folha1.put("password", password)
-
-        jsonBody.put("folha1", folha1)
-
-        // Usa coroutines para não bloquear a UI
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val urlObj = URL(url)
                 val connection = urlObj.openConnection() as HttpURLConnection
 
-                // Configurar a requisição
                 connection.requestMethod = "POST"
                 connection.doOutput = true
                 connection.setRequestProperty("Content-Type", "application/json")
 
-                // Escrever o corpo da requisição
-                val outputStreamWriter = OutputStreamWriter(connection.outputStream)
-                outputStreamWriter.write(jsonBody.toString())
-                outputStreamWriter.flush()
+                OutputStreamWriter(connection.outputStream).use { it.write(jsonBody.toString()) }
 
-                println("AAAAAAAAAAAAAAAAA SIM")
-                // Ler resposta
                 val responseCode = connection.responseCode
                 if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
                     val response = connection.inputStream.bufferedReader().use { it.readText() }
-                    val jsonResponse = JSONObject(response)
-
                     withContext(Dispatchers.Main) {
-                        println("Resposta da API: $jsonResponse")
+                        Log.d("MainActivity", "Resposta da API: $response")
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        println("Erro na requisição: Código $responseCode")
+                        Log.d("MainActivity", "Erro na requisição: Código $responseCode")
                     }
                 }
 
@@ -162,5 +270,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
 }

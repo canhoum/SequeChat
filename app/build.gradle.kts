@@ -56,4 +56,6 @@ dependencies {
 
     // ImageView arredondada
     implementation(libs.roundedimageview)
+
+
 }

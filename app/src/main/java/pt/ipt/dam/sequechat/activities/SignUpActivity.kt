@@ -58,6 +58,10 @@ class SignUpActivity : AppCompatActivity() {
                 showToast("Enter name")
                 false
             }
+            binding.inputUsername.text.toString().trim().isEmpty() -> {
+                showToast("Enter Username")
+                false
+            }
             binding.inputEmail.text.toString().trim().isEmpty() -> {
                 showToast("Enter email")
                 false
@@ -78,12 +82,14 @@ class SignUpActivity : AppCompatActivity() {
                 showToast("Password & confirm password must be the same")
                 false
             }
+
             else -> {
                 // Cria um Intent para abrir a MainActivity e enviar os dados
                 val intent = Intent(this, MainActivity::class.java).apply {
                     putExtra("name", binding.inputName.text.toString().trim())
                     putExtra("email", binding.inputEmail.text.toString().trim())
                     putExtra("password", binding.inputPassword.text.toString().trim())
+                    putExtra("username", binding.inputUsername.text.toString().trim())
                 }
                 startActivity(intent)
                 true

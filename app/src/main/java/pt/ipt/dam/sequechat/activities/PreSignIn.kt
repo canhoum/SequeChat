@@ -79,8 +79,14 @@ class PreSignIn : AppCompatActivity() {
                         val user = usersArray.getJSONObject(i)
                         val registeredEmail = user.getString("email")
                         val registeredPassword = user.getString("password")
+                        val registeredUsername = user.getString("username")
 
                         if (email == registeredEmail && password == registeredPassword) {
+                            val sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+                            sharedPreferences.edit().apply {
+                                putString("UserId", registeredUsername)  // Storing the email as the user ID
+                                apply()
+                            }
                             loginSuccessful = true
                             break
                         }
