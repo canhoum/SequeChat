@@ -54,8 +54,6 @@ dependencies {
     implementation(libs.sdp.android)
     implementation(libs.ssp.android)
 
-    //ImageView arredondada
+    // ImageView arredondada
     implementation(libs.roundedimageview)
-
-
 }
