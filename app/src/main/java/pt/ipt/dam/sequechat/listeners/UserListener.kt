@@ -1,7 +1,7 @@
-package pt.ipt.dam.sequechat.listeners;
+package pt.ipt.dam.sequechat.listeners
 
-import pt.ipt.dam.sequechat.models.User;
+import pt.ipt.dam.sequechat.models.User
 
-public interface UserListener {
-    void onUserClicked(User user);
+interface UserListener {
+    fun onUserClicked(user: User)
 }
