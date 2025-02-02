@@ -3,7 +3,6 @@ package pt.ipt.dam.sequechat.activities
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +17,6 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
@@ -26,7 +24,6 @@ class ChatActivity : AppCompatActivity() {
     private val chatMessages = mutableListOf<ChatMessage>()
     private lateinit var currentUserId: String
     private lateinit var receiverUserId: String
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,27 +39,30 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
+        // Configurar botão para voltar
+        binding.imageBack.setOnClickListener {
+            finish()  // Fecha a ChatActivity e volta para a UsersActivity
+        }
+
         // Receber o User da outra Activity
         val user = intent.getSerializableExtra("user") as? User
         if (user != null) {
-            // Exibir o nome do User na interface (ou usar conforme necessário)
             receiverUserId = user.username
             Toast.makeText(this, "Conversando com: ${user.name}", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Erro ao carregar o utilizador.", Toast.LENGTH_SHORT).show()
-            finish()  // Se o user não for encontrado, fecha a Activity
+            finish()
         }
 
         setupRecyclerView()
         setupSendButton()
-
     }
 
     private fun setupRecyclerView() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
                 println("Fetching messages...")
-                val fetchedMessages = fetchMessagesFromSheety()  // Await the messages
+                val fetchedMessages = fetchMessagesFromSheety()
 
                 println("Messages fetched: $fetchedMessages")
 
@@ -84,9 +84,6 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-
-
-
     private suspend fun fetchMessagesFromSheety(): List<ChatMessage> = withContext(Dispatchers.IO) {
         val messages = mutableListOf<ChatMessage>()
         try {
@@ -102,7 +99,9 @@ class ChatActivity : AppCompatActivity() {
 
                 for (i in 0 until jsonArray.length()) {
                     val jsonObject = jsonArray.getJSONObject(i)
-                    if((jsonObject.getString("senderId")==currentUserId && jsonObject.getString("receiverId")==receiverUserId) || (jsonObject.getString("senderId")==receiverUserId && jsonObject.getString("receiverId")==currentUserId)){
+                    if ((jsonObject.getString("senderId") == currentUserId && jsonObject.getString("receiverId") == receiverUserId) ||
+                        (jsonObject.getString("senderId") == receiverUserId && jsonObject.getString("receiverId") == currentUserId)
+                    ) {
                         val chatMessage = ChatMessage(
                             senderId = jsonObject.getString("senderId"),
                             receiverId = jsonObject.getString("receiverId"),
@@ -120,18 +119,13 @@ class ChatActivity : AppCompatActivity() {
         messages  // Return the fetched messages
     }
 
-
-
-
-
-
     private fun setupSendButton() {
         binding.sendButton.setOnClickListener {
             val message = binding.inputMessage.text.toString().trim()
             if (message.isNotEmpty()) {
                 val chatMessage = ChatMessage(
-                    senderId = currentUserId,  // Example sender ID
-                    receiverId = receiverUserId,  // Example receiver ID
+                    senderId = currentUserId,
+                    receiverId = receiverUserId,
                     message = message,
                     DateTime = getCurrentDateTime()
                 )

@@ -150,7 +150,8 @@ class MainActivity : AppCompatActivity() {
                             val user = User(
                                 name = userJson.getString("nome"),
                                 email = userJson.getString("email"),
-                                username = username
+                                username = username,
+                                image = userJson.optString("image","")
                             )
                             usersList.add(user)
                         }
@@ -195,7 +196,8 @@ class MainActivity : AppCompatActivity() {
                         val user = User(
                             name = userJson.getString("nome"),
                             email = userJson.getString("email"),
-                            username = userJson.getString("username")
+                            username = userJson.getString("username"),
+                            image = userJson.optString("image","")
                         )
                         usersList.add(user)
                     }
@@ -228,47 +230,7 @@ class MainActivity : AppCompatActivity() {
         context.startActivity(loginIntent)
     }
 
-    private fun postToSheety(name: String, email: String, password: String, username: String) {
-        val url = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1"
 
-        val jsonBody = JSONObject().apply {
-            put("folha1", JSONObject().apply {
-                put("nome", name)
-                put("email", email)
-                put("password", password)
-                put("username", username)
-            })
-        }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val urlObj = URL(url)
-                val connection = urlObj.openConnection() as HttpURLConnection
-
-                connection.requestMethod = "POST"
-                connection.doOutput = true
-                connection.setRequestProperty("Content-Type", "application/json")
-
-                OutputStreamWriter(connection.outputStream).use { it.write(jsonBody.toString()) }
-
-                val responseCode = connection.responseCode
-                if (responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_CREATED) {
-                    val response = connection.inputStream.bufferedReader().use { it.readText() }
-                    withContext(Dispatchers.Main) {
-                        Log.d("MainActivity", "Resposta da API: $response")
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        Log.d("MainActivity", "Erro na requisição: Código $responseCode")
-                    }
-                }
-
-                connection.disconnect()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

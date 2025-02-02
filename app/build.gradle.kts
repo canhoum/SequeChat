@@ -50,12 +50,22 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
+
+
     // Muda a resolução para diferentes tamanhos de ecrãs
     implementation(libs.sdp.android)
     implementation(libs.ssp.android)
 
     // ImageView arredondada
     implementation(libs.roundedimageview)
+
+
+
+    // Biblioteca de GPS
+    implementation("com.google.android.gms:play-services-location:20.0.0")
+
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
 
 
 }

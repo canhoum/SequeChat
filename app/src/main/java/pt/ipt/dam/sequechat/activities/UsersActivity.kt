@@ -71,7 +71,8 @@ class UserActivity : AppCompatActivity(), UserListener {
                         val user = User(
                             name = userJson.getString("nome"),
                             email = userJson.getString("email"),
-                            username = userJson.optString("username", "N/A")  // Verifica se o campo 'user' está presente
+                            username = userJson.optString("username", "N/A"),
+                            image = userJson.optString("image","")
                         )
                         usersList.add(user)
                     }
