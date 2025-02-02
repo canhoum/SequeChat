@@ -17,4 +17,5 @@
     <string name="btnteste">Button</string>
     <string name="log_out">Log Out</string>
     <string name="envia_uma_mensagem">Envia uma mensagem</string>
+    <string name="selecionar_utilziador">Selecionar Utilizador</string>
 </resources>

@@ -12,6 +12,7 @@
             android:background="@drawable/background_sent_message"
             android:padding="@dimen/_12sdp"
             android:textColor="@color/white"
+            android:text="message"
             android:textSize="@dimen/_13ssp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -24,6 +25,7 @@
         android:layout_marginTop="@dimen/_4sdp"
         android:textColor="@color/secundary_text"
         android:textSize="@dimen/_10ssp"
+        android:text="DateTime"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textMessage"/>
     

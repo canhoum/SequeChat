@@ -10,15 +10,14 @@
     tools:context=".models.MainActivity">
 
     <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/imageProfile"
+        android:id="@+id/imageProfileMain"
         android:layout_width="30.00dp"
         android:layout_height="30.00dp"
         android:layout_marginStart="16.00dp"
         android:layout_marginLeft="16.00dp"
         android:layout_marginTop="12.00dp"
         android:scaleType="centerCrop"
-        android:background="#36485d"
-        android:drawableStart="@drawable/ic_profile"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:riv_corner_radius="8.00dp"/>
@@ -35,30 +34,7 @@
         android:layout_marginTop="16dp"
         />
 
-    <Button
-        android:id="@+id/btnteste"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Button"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8.0dp"
-        android:layout_marginEnd="8.0dp"
-        android:ellipsize="end"
-        android:gravity="center"
-        android:maxLines="1"
-        android:textSize="14.00sp"
-        android:textStyle="bold"
-        android:drawableStart="@drawable/ic_profile"
-        app:layout_constraintBottom_toBottomOf="@+id/imageProfile"
-        app:layout_constraintStart_toEndOf="@+id/imageProfile"
-        app:layout_constraintTop_toTopOf="@+id/imageProfile"
-        />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -66,7 +42,22 @@
         android:layout_marginTop="@dimen/_16sdp"
         android:background="@drawable/background_content_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageProfile"/>
+        app:layout_constraintTop_toBottomOf="@+id/imageProfileMain">
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewUsers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:visibility="visible"/>
+
+
+
+
+    </FrameLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabNewChat"
@@ -77,8 +68,23 @@
         android:layout_marginBottom="@dimen/_24sdp"
         android:src="@drawable/ic_add"
         android:backgroundTint="@color/primary"
+        android:tint="@color/white"
+        android:contentDescription="Adicionar novo chat"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:tint="@color/white"  />
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/about"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_24sdp"
+        android:layout_marginBottom="@dimen/_24sdp"
+        android:src="@drawable/ic_accessibility"
+        android:backgroundTint="@color/primary"
+        android:tint="@color/white"
+        android:contentDescription="Btn about"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
