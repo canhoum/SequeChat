@@ -32,61 +32,66 @@ class ChatActivity : AppCompatActivity() {
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Obtém o ID do utilizador atual das SharedPreferences
         val sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
         currentUserId = sharedPreferences.getString("UserId", "") ?: ""
 
+        // Verifica se há utilizador logado
         if (currentUserId.isEmpty()) {
-            Toast.makeText(this, "No user logged in", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Nenhum utilizador logado", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        // Configurar botão para voltar
+        // Configura o botão para voltar à MainActivity
         binding.imageBack.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
-            //finish()  // Fecha a ChatActivity e volta para a UsersActivity
         }
 
-        // Receber o User da outra Activity
+        // Obtém o utilizador destinatário da outra activity
         val user = intent.getSerializableExtra("user") as? User
         if (user != null) {
-            receiverUserId = user.username
+            receiverUserId = user.username  // ID do utilizador destinatário
             Toast.makeText(this, "Conversando com: ${user.name}", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Erro ao carregar o utilizador.", Toast.LENGTH_SHORT).show()
-            finish()
+            finish()  // Se o utilizador não for encontrado, fecha a activity
         }
 
         setupRecyclerView()
         setupSendButton()
     }
 
+    // Configura o RecyclerView para exibir as mensagens
     private fun setupRecyclerView() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                println("Fetching messages...")
-                val fetchedMessages = fetchMessagesFromSheety()
+                println("A obter mensagens...")
+                val fetchedMessages = fetchMessagesFromSheety()  // Obtém as mensagens da API
 
-                println("Messages fetched: $fetchedMessages")
+                println("Mensagens obtidas: $fetchedMessages")
 
+                // Limpa a lista atual e adiciona as novas mensagens
                 chatMessages.clear()
                 chatMessages.addAll(fetchedMessages)
 
+                // Configura o adaptador para o RecyclerView
                 chatAdapter = ChatAdapter(chatMessages, currentUserId)
                 binding.chatRecyclerView.apply {
                     layoutManager = LinearLayoutManager(this@ChatActivity)
                     adapter = chatAdapter
                     chatAdapter.notifyDataSetChanged()
-                    scrollToPosition(chatMessages.size - 1)
+                    scrollToPosition(chatMessages.size - 1)  // Move para a última mensagem
                 }
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this@ChatActivity, "Failed to load messages.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ChatActivity, "Falha ao carregar mensagens.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    // Obtém as mensagens da API Sheety usando coroutines
     private suspend fun fetchMessagesFromSheety(): List<ChatMessage> = withContext(Dispatchers.IO) {
         val messages = mutableListOf<ChatMessage>()
         try {
@@ -100,6 +105,7 @@ class ChatActivity : AppCompatActivity() {
                 val response = connection.inputStream.bufferedReader().use { it.readText() }
                 val jsonArray = JSONObject(response).getJSONArray("folha2")
 
+                // Filtra as mensagens entre o utilizador atual e o destinatário
                 for (i in 0 until jsonArray.length()) {
                     val jsonObject = jsonArray.getJSONObject(i)
                     if ((jsonObject.getString("senderId") == currentUserId && jsonObject.getString("receiverId") == receiverUserId) ||
@@ -119,9 +125,10 @@ class ChatActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        messages  // Return the fetched messages
+        messages  // Retorna as mensagens obtidas
     }
 
+    // Configura o botão para enviar mensagens
     private fun setupSendButton() {
         binding.sendButton.setOnClickListener {
             val message = binding.inputMessage.text.toString().trim()
@@ -130,30 +137,32 @@ class ChatActivity : AppCompatActivity() {
                     senderId = currentUserId,
                     receiverId = receiverUserId,
                     message = message,
-                    DateTime = getCurrentDateTime()
+                    DateTime = getCurrentDateTime()  // Obtém a data e hora atuais
                 )
 
-                // Add the message locally and update the RecyclerView
+                // Adiciona a mensagem localmente e atualiza o RecyclerView
                 chatMessages.add(chatMessage)
                 chatAdapter.notifyItemInserted(chatMessages.size - 1)
                 binding.chatRecyclerView.scrollToPosition(chatMessages.size - 1)
 
-                // Clear the input field
+                // Limpa o campo de input
                 binding.inputMessage.text.clear()
 
-                // Store the message in Sheety
+                // Envia a mensagem para a API Sheety
                 sendMessageToSheety(chatMessage)
             } else {
-                Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, insira uma mensagem.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    // Obtém a data e hora atuais formatadas
     private fun getCurrentDateTime(): String {
         val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
         return dateFormat.format(Date())
     }
 
+    // Envia a mensagem para a API Sheety
     private fun sendMessageToSheety(chatMessage: ChatMessage) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -180,15 +189,15 @@ class ChatActivity : AppCompatActivity() {
                 val responseMessage = connection.inputStream.bufferedReader().use { it.readText() }
 
                 if (responseCode == HttpURLConnection.HTTP_CREATED) {
-                    Log.d("SheetySuccess", "Message sent successfully: $responseMessage")
+                    Log.d("SheetySuccess", "Mensagem enviada com sucesso: $responseMessage")
                 } else {
-                    Log.e("SheetyError", "Failed to send message: $responseCode, $responseMessage")
+                    Log.e("SheetyError", "Falha ao enviar mensagem: $responseCode, $responseMessage")
                 }
                 connection.disconnect()
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@ChatActivity, "Failed to send message.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ChatActivity, "Falha ao enviar mensagem.", Toast.LENGTH_SHORT).show()
                 }
             }
         }

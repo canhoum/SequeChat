@@ -29,23 +29,24 @@ import pt.ipt.dam.sequechat.adapters.UserListAdpater
 import java.net.HttpURLConnection
 import java.net.URL
 
+// Classe principal da aplicação
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var usersAdapter: UserListAdpater
-    private val usersList = mutableListOf<User>()
+    private lateinit var usersAdapter: UserListAdpater  // Adaptador para a lista de utilizadores
+    private val usersList = mutableListOf<User>()  // Lista de utilizadores a ser exibida
 
     @SuppressLint("SuspiciousIndentation")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge()  // Configuração da interface imersiva
         setContentView(R.layout.activity_main)
 
-        // Inicializar UI
+        // Inicialização da interface do utilizador
         setupUI()
 
-        // Configurar o adapter e RecyclerView
+        // Configuração do adaptador da RecyclerView
         usersAdapter = UserListAdpater(usersList) { selectedUser ->
-            onUserSelected(selectedUser)
+            onUserSelected(selectedUser)  // Definir ação ao selecionar utilizador
         }
 
         findViewById<RecyclerView>(R.id.recyclerViewUsers).apply {
@@ -53,39 +54,37 @@ class MainActivity : AppCompatActivity() {
             adapter = usersAdapter
         }
 
-        // Carregar os dados da API
+        // Carrega os dados de utilizador e imagem do perfil guardados nas preferências
         val sharedPreferences = this.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
         val image = sharedPreferences.getString("image", "")
         if (image != null && image.isNotEmpty()) {
             val imagemMain: RoundedImageView = findViewById(R.id.imageProfileMain)
 
             try {
-                // Converter a string Base64 para um array de bytes
+                // Converte a imagem de Base64 para Bitmap
                 val byteArray = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
-
-                // Converter o array de bytes para um Bitmap
                 val bitmap = android.graphics.BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-
-                // Definir o Bitmap no RoundedImageView
-                imagemMain.setImageBitmap(bitmap)
+                imagemMain.setImageBitmap(bitmap)  // Define a imagem no ImageView
             } catch (e: Exception) {
                 e.printStackTrace()
-                // Pode exibir uma mensagem de erro ou usar um placeholder em caso de falha
-                imagemMain.setImageResource(R.drawable.ic_profile)  // Placeholder padrão
+                // Caso ocorra um erro, utiliza uma imagem placeholder
+                imagemMain.setImageResource(R.drawable.ic_profile)
             }
         }
+
         val username = sharedPreferences.getString("UserId", null)
         if (username != null) {
-            fetchSheetyData(username)
+            fetchSheetyData(username)  // Busca dados de utilizadores e mensagens associadas
         }
     }
 
+    // Configuração dos elementos da interface
     private fun setupUI() {
         val buttonLogout: Button = findViewById(R.id.buttonLogOut)
         val fabNewChat: FloatingActionButton = findViewById(R.id.fabNewChat)
-        val fabAbout: FloatingActionButton = findViewById(R.id.about)  // Botão About
+        val fabAbout: FloatingActionButton = findViewById(R.id.about)
 
-        // Configurar RecyclerView e passar a função ao clicar num utilizador
+        // Configuração do RecyclerView
         usersAdapter = UserListAdpater(usersList) { selectedUser ->
             onUserSelected(selectedUser)
         }
@@ -94,22 +93,23 @@ class MainActivity : AppCompatActivity() {
             adapter = usersAdapter
         }
 
-        // Listener para botão de novo chat
+        // Listener para iniciar novo chat
         fabNewChat.setOnClickListener {
             startActivity(Intent(this, UserActivity::class.java))
         }
 
-        // Listener para o botão about
+        // Listener para abrir a página "About"
         fabAbout.setOnClickListener {
             val intent = Intent(this, About::class.java)
             startActivity(intent)
         }
 
-        // Listener para logout
+        // Listener para efetuar logout
         buttonLogout.setOnClickListener {
             logout(this)
         }
 
+        // Ajusta a interface para o modo edge-to-edge
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -117,19 +117,21 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Método chamado quando um utilizador é selecionado
     private fun onUserSelected(user: User) {
         val intent = Intent(this, ChatActivity::class.java)
         intent.putExtra("user", user)
         startActivity(intent)
     }
 
+    // Busca dados da API Sheety para mensagens e utilizadores
     private fun fetchSheetyData(currentUserId: String) {
         val messagesUrl = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha2"
         val usersUrl = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1"
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // 1. Obter as mensagens da folha2
+                // Obter mensagens da folha2
                 val messagesConnection = URL(messagesUrl).openConnection() as HttpURLConnection
                 messagesConnection.requestMethod = "GET"
                 messagesConnection.connect()
@@ -141,20 +143,20 @@ class MainActivity : AppCompatActivity() {
                     val response = messagesConnection.inputStream.bufferedReader().use { it.readText() }
                     val messagesArray = JSONObject(response).getJSONArray("folha2")
 
-                    // Filtrar mensagens em que o senderId é o currentUserId
+                    // Filtrar mensagens enviadas pelo utilizador atual
                     for (i in 0 until messagesArray.length()) {
                         val messageJson = messagesArray.getJSONObject(i)
                         val senderId = messageJson.getString("senderId")
                         val receiverId = messageJson.getString("receiverId")
 
                         if (senderId == currentUserId) {
-                            receiverUsernames.add(receiverId)  // Adiciona receiverId ao conjunto
+                            receiverUsernames.add(receiverId)  // Armazenar os IDs dos destinatários
                         }
                     }
                 }
                 messagesConnection.disconnect()
 
-                // 2. Obter utilizadores da folha1
+                // Obter utilizadores da folha1
                 val usersConnection = URL(usersUrl).openConnection() as HttpURLConnection
                 usersConnection.requestMethod = "GET"
                 usersConnection.connect()
@@ -164,13 +166,12 @@ class MainActivity : AppCompatActivity() {
                     val response = usersConnection.inputStream.bufferedReader().use { it.readText() }
                     val usersArray = JSONObject(response).getJSONArray("folha1")
 
-                    // Limpar a lista existente e adicionar novos utilizadores sem repetir
-                    usersList.clear()
+                    usersList.clear()  // Limpa a lista de utilizadores antes de adicionar novos dados
                     for (i in 0 until usersArray.length()) {
                         val userJson = usersArray.getJSONObject(i)
                         val username = userJson.getString("username")
 
-                        // Adiciona apenas utilizadores cujos usernames correspondem ao receiverId filtrado
+                        // Adiciona utilizadores que são destinatários das mensagens filtradas
                         if (receiverUsernames.contains(username)) {
                             val user = User(
                                 name = userJson.getString("nome"),
@@ -197,6 +198,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Efetua logout do utilizador
     private fun logout(context: Context) {
         val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
         sharedPreferences.edit().putBoolean("IsLoggedIn", false).apply()
@@ -208,6 +210,7 @@ class MainActivity : AppCompatActivity() {
         context.startActivity(loginIntent)
     }
 
+    // Exibe uma mensagem de toast
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }

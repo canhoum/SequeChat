@@ -24,34 +24,38 @@ class UserActivity : AppCompatActivity(), UserListener {
     private lateinit var usersAdapter: UsersAdapter
     private val usersList = ArrayList<User>()
 
+    // Método chamado quando a atividade é criada
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityUsersBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         preferenceManager = PreferenceManager(this)
-        setupUI()
-        fetchSheetyData()
+        setupUI()  // Configura a interface do utilizador
+        fetchSheetyData()  // Faz a requisição de dados ao servidor
     }
 
+    // Configura a interface do utilizador, como listeners e o layout da lista
     private fun setupUI() {
         binding.imageBack.setOnClickListener {
-            fetchSheetyData()
-            onBackPressed()
+            fetchSheetyData()  // Atualiza os dados quando o botão de voltar é pressionado
+            onBackPressed()  // Volta à atividade anterior
         }
-        binding.usersRecyclerView.layoutManager = GridLayoutManager(this, 2)
+        binding.usersRecyclerView.layoutManager = GridLayoutManager(this, 2)  // Organiza os utilizadores em grelha
     }
 
+    // Método chamado quando um utilizador é clicado na lista
     override fun onUserClicked(user: User) {
         Toast.makeText(this, "User clicked: ${user.name}", Toast.LENGTH_SHORT).show()
         val intent = Intent(applicationContext, ChatActivity::class.java)
         intent.putExtra("user", user)
-        startActivity(intent)
-        finish()
+        startActivity(intent)  // Inicia a atividade de chat com o utilizador selecionado
+        finish()  // Fecha a atividade atual
     }
 
+    // Obtém dados da API Sheety e popula a lista de utilizadores
     private fun fetchSheetyData() {
-        showLoading(true)
+        showLoading(true)  // Mostra o indicador de carregamento
 
         val url = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1"
 
@@ -74,38 +78,39 @@ class UserActivity : AppCompatActivity(), UserListener {
                         val user = User(
                             name = userJson.getString("nome"),
                             email = userJson.getString("email"),
-                            username = userJson.optString("username", "N/A"),
-                            image = userJson.optString("image","")
+                            username = userJson.optString("username", "N/A"),  // Utiliza "N/A" se não houver username
+                            image = userJson.optString("image","")  // Utiliza uma string vazia se não houver imagem
                         )
-                        usersList.add(user)
+                        usersList.add(user)  // Adiciona o utilizador à lista
                     }
 
                     withContext(Dispatchers.Main) {
                         if (usersList.isNotEmpty()) {
                             usersAdapter = UsersAdapter(usersList, this@UserActivity)
-                            binding.usersRecyclerView.adapter = usersAdapter
+                            binding.usersRecyclerView.adapter = usersAdapter  // Associa o adaptador à RecyclerView
                             binding.usersRecyclerView.visibility = View.VISIBLE
                         } else {
-                            showErrorMessage()
+                            showErrorMessage()  // Exibe uma mensagem de erro se não houver utilizadores
                         }
-                        showLoading(false)
+                        showLoading(false)  // Esconde o indicador de carregamento
                     }
                 } else {
                     Log.d("UserActivity", "Erro na requisição: Código $responseCode")
-                    showLoading(false)
+                    showLoading(false)  // Esconde o indicador de carregamento mesmo em caso de erro
                 }
 
                 connection.disconnect()
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) {
-                    showToast("Erro ao obter dados.")
-                    showLoading(false)
+                    showToast("Erro ao obter dados.")  // Mostra uma mensagem de erro ao utilizador
+                    showLoading(false)  // Esconde o indicador de carregamento
                 }
             }
         }
     }
 
+    // Atualiza o campo "username" de um utilizador específico na API
     private fun updateUserField(id: Int, username: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -124,7 +129,7 @@ class UserActivity : AppCompatActivity(), UserListener {
                     requestMethod = "PUT"
                     setRequestProperty("Content-Type", "application/json")
                     doOutput = true
-                    outputStream.write(updateJsonBody.toByteArray())
+                    outputStream.write(updateJsonBody.toByteArray())  // Envia os dados de atualização
                 }
 
                 val responseCode = connection.responseCode
@@ -149,6 +154,7 @@ class UserActivity : AppCompatActivity(), UserListener {
         }
     }
 
+    // Exibe uma mensagem de erro se não houver utilizadores disponíveis
     private fun showErrorMessage() {
         binding.textinputError.apply {
             text = "No user available"
@@ -156,10 +162,12 @@ class UserActivity : AppCompatActivity(), UserListener {
         }
     }
 
+    // Mostra uma mensagem ao utilizador
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    // Mostra ou esconde o indicador de carregamento
     private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
