@@ -23,9 +23,8 @@ import pt.ipt.dam.sequechat.R
 import pt.ipt.dam.sequechat.activities.ChatActivity
 import pt.ipt.dam.sequechat.activities.PreSignIn
 import pt.ipt.dam.sequechat.activities.UserActivity
+import pt.ipt.dam.sequechat.activities.About
 import pt.ipt.dam.sequechat.adapters.UserListAdpater
-import pt.ipt.dam.sequechat.models.User
-import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -54,9 +53,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Carregar os dados da API
-        //fetchUsersFromSheety()
         val sharedPreferences = this.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-        val  username = sharedPreferences.getString("UserId", null)
+        val username = sharedPreferences.getString("UserId", null)
         if (username != null) {
             fetchSheetyData(username)
         }
@@ -65,12 +63,13 @@ class MainActivity : AppCompatActivity() {
     private fun setupUI() {
         val buttonLogout: Button = findViewById(R.id.buttonLogOut)
         val fabNewChat: FloatingActionButton = findViewById(R.id.fabNewChat)
+        val fabAbout: FloatingActionButton = findViewById(R.id.about)  // Botão About
 
         // Configurar RecyclerView e passar a função ao clicar num utilizador
         usersAdapter = UserListAdpater(usersList) { selectedUser ->
             onUserSelected(selectedUser)
         }
-        findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.recyclerViewUsers).apply {
+        findViewById<RecyclerView>(R.id.recyclerViewUsers).apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = usersAdapter
         }
@@ -78,6 +77,12 @@ class MainActivity : AppCompatActivity() {
         // Listener para botão de novo chat
         fabNewChat.setOnClickListener {
             startActivity(Intent(this, UserActivity::class.java))
+        }
+
+        // Listener para o botão about
+        fabAbout.setOnClickListener {
+            val intent = Intent(this, About::class.java)
+            startActivity(intent)
         }
 
         // Listener para logout
@@ -151,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                                 name = userJson.getString("nome"),
                                 email = userJson.getString("email"),
                                 username = username,
-                                image = userJson.optString("image","")
+                                image = userJson.optString("image", "")
                             )
                             usersList.add(user)
                         }
@@ -172,53 +177,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-
-    private fun fetchUsersFromSheety() {
-        val url = "https://api.sheety.co/182b17ec2dcc0a8d3be919b2baff9dfc/sequechat/folha1"
-
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val connection = URL(url).openConnection() as HttpURLConnection
-                connection.requestMethod = "GET"
-                connection.connect()
-
-                val responseCode = connection.responseCode
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    val response = connection.inputStream.bufferedReader().use { it.readText() }
-                    val jsonObject = JSONObject(response)
-                    val usersArray = jsonObject.getJSONArray("folha1")
-
-                    // Limpar a lista existente e adicionar novos utilizadores
-                    usersList.clear()
-                    for (i in 0 until usersArray.length()) {
-                        val userJson = usersArray.getJSONObject(i)
-                        val user = User(
-                            name = userJson.getString("nome"),
-                            email = userJson.getString("email"),
-                            username = userJson.getString("username"),
-                            image = userJson.optString("image","")
-                        )
-                        usersList.add(user)
-                    }
-
-                    withContext(Dispatchers.Main) {
-                        usersAdapter.notifyDataSetChanged()
-                    }
-                } else {
-                    Log.d("MainActivity", "Erro na requisição: Código $responseCode")
-                }
-
-                connection.disconnect()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, "Erro ao buscar utilizadores.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
     private fun logout(context: Context) {
         val sharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
         sharedPreferences.edit().putBoolean("IsLoggedIn", false).apply()
@@ -229,8 +187,6 @@ class MainActivity : AppCompatActivity() {
         loginIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(loginIntent)
     }
-
-
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
