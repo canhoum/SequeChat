@@ -10,7 +10,7 @@
     tools:context=".models.MainActivity">
 
     <com.makeramen.roundedimageview.RoundedImageView
-        android:id="@+id/imageProfile"
+        android:id="@+id/imageProfileMain"
         android:layout_width="30.00dp"
         android:layout_height="30.00dp"
         android:layout_marginStart="16.00dp"
@@ -42,7 +42,7 @@
         android:layout_marginTop="@dimen/_16sdp"
         android:background="@drawable/background_content_bottom"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageProfile">
+        app:layout_constraintTop_toBottomOf="@+id/imageProfileMain">
 
 
         <androidx.recyclerview.widget.RecyclerView

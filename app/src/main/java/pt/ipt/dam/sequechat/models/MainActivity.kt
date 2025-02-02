@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.makeramen.roundedimageview.RoundedImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -54,6 +55,25 @@ class MainActivity : AppCompatActivity() {
 
         // Carregar os dados da API
         val sharedPreferences = this.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        val image = sharedPreferences.getString("image", "")
+        if (image != null && image.isNotEmpty()) {
+            val imagemMain: RoundedImageView = findViewById(R.id.imageProfileMain)
+
+            try {
+                // Converter a string Base64 para um array de bytes
+                val byteArray = android.util.Base64.decode(image, android.util.Base64.DEFAULT)
+
+                // Converter o array de bytes para um Bitmap
+                val bitmap = android.graphics.BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+
+                // Definir o Bitmap no RoundedImageView
+                imagemMain.setImageBitmap(bitmap)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Pode exibir uma mensagem de erro ou usar um placeholder em caso de falha
+                imagemMain.setImageResource(R.drawable.ic_profile)  // Placeholder padrão
+            }
+        }
         val username = sharedPreferences.getString("UserId", null)
         if (username != null) {
             fetchSheetyData(username)

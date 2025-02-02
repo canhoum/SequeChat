@@ -80,11 +80,12 @@ class PreSignIn : AppCompatActivity() {
                         val registeredEmail = user.getString("email")
                         val registeredPassword = user.getString("password")
                         val registeredUsername = user.getString("username")
-
+                        val registeredImage= user.optString("image","")
                         if (email == registeredEmail && password == registeredPassword) {
                             val sharedPreferences = getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
                             sharedPreferences.edit().apply {
-                                putString("UserId", registeredUsername)  // Storing the email as the user ID
+                                putString("UserId", registeredUsername)
+                                putString("image", registeredImage)// Storing the email as the user ID
                                 apply()
                             }
                             loginSuccessful = true
