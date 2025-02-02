@@ -35,7 +35,10 @@ class UserActivity : AppCompatActivity(), UserListener {
     }
 
     private fun setupUI() {
-        binding.imageBack.setOnClickListener { onBackPressed() }
+        binding.imageBack.setOnClickListener {
+            fetchSheetyData()
+            onBackPressed()
+        }
         binding.usersRecyclerView.layoutManager = GridLayoutManager(this, 2)
     }
 

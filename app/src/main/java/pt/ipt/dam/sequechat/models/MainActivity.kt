@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Carregar os dados da API
-        fetchUsersFromSheety()
+        //fetchUsersFromSheety()
         val sharedPreferences = this.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
         val  username = sharedPreferences.getString("UserId", null)
         if (username != null) {

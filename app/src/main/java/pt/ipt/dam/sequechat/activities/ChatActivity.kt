@@ -1,6 +1,7 @@
 package pt.ipt.dam.sequechat.activities
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -11,6 +12,7 @@ import org.json.JSONObject
 import pt.ipt.dam.sequechat.adapters.ChatAdapter
 import pt.ipt.dam.sequechat.databinding.ActivityChatBinding
 import pt.ipt.dam.sequechat.models.ChatMessage
+import pt.ipt.dam.sequechat.models.MainActivity
 import pt.ipt.dam.sequechat.models.User
 import java.net.HttpURLConnection
 import java.net.URL
@@ -41,7 +43,8 @@ class ChatActivity : AppCompatActivity() {
 
         // Configurar botão para voltar
         binding.imageBack.setOnClickListener {
-            finish()  // Fecha a ChatActivity e volta para a UsersActivity
+            startActivity(Intent(this, MainActivity::class.java))
+            //finish()  // Fecha a ChatActivity e volta para a UsersActivity
         }
 
         // Receber o User da outra Activity
